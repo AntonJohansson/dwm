@@ -4,22 +4,26 @@
 #include <X11/XF86keysym.h>
 
 /* appearance */
-static const unsigned int borderpx  = 3;        /* border pixel of windows */
-static const unsigned int gappx     = 10;        /* gaps between windows */
-static const unsigned int snap      = 32;       /* snap pixel */
-static const int showbar            = 1;        /* 0 means no bar */
-static const int topbar             = 1;        /* 0 means bottom bar */
-static const int vertpad            = 0;       /* vertical padding of bar */
-static const int sidepad            = 0;       /* horizontal padding of bar */
-static const char *fonts[]          = {"mononoki Nerd Font:size=11"};
-static const char dmenufont[]       = "mononoki Nerd Font:size=11";
-static const char col_black[]       = "#000000"; /* bg */
-static const char col_grey[]       = "#dddddd"; /* font color */
-static const char col_green[]        = "#005500"; /* bar and active color */
-static const char *colors[][3]      = {
-	/*               fg         bg         border   */
-	[SchemeNorm] = { col_grey, col_black,  col_black },
-	[SchemeSel]  = { col_grey, col_green,  col_black },
+static unsigned int borderpx  = 3;        /* border pixel of windows */
+static unsigned int gappx     = 10;        /* gaps between windows */
+static unsigned int snap      = 32;       /* snap pixel */
+static int showbar            = 1;        /* 0 means no bar */
+static int topbar             = 1;        /* 0 means bottom bar */
+static int vertpad            = 0;       /* vertical padding of bar */
+static int sidepad            = 0;       /* horizontal padding of bar */
+static char font[]             = "mononoki Nerd Font:size=11";
+static char dmenufont[]       = "mononoki Nerd Font:size=11";
+static const char *fonts[] 	  = {font};
+static char normbgcolor[]           = "#000000";
+static char normbordercolor[]       = "#444444";
+static char normfgcolor[]           = "#bbbbbb";
+static char selfgcolor[]            = "#eeeeee";
+static char selbordercolor[]        = "#005577";
+static char selbgcolor[]            = "#005577";
+static char *colors[][3] = {
+       /*               fg           bg           border   */
+       [SchemeNorm] = { normfgcolor, normbgcolor, normbordercolor },
+       [SchemeSel]  = { selfgcolor,  selbgcolor,  selbordercolor  },
 };
 
 /* tagging */
@@ -36,9 +40,9 @@ static const Rule rules[] = {
 };
 
 /* layout(s) */
-static const float mfact     = 0.55; /* factor of master area size [0.05..0.95] */
-static const int nmaster     = 1;    /* number of clients in master area */
-static const int resizehints = 0;    /* 1 means respect size hints in tiled resizals */
+static float mfact     = 0.55; /* factor of master area size [0.05..0.95] */
+static int nmaster     = 1;    /* number of clients in master area */
+static int resizehints = 0;    /* 1 means respect size hints in tiled resizals */
 
 static const Layout layouts[] = {
 	/* symbol     arrange function */
@@ -55,12 +59,33 @@ static const Layout layouts[] = {
 	{ MODKEY|ShiftMask,             KEY,      tag,            {.ui = 1 << TAG} }, \
 	{ MODKEY|ControlMask|ShiftMask, KEY,      toggletag,      {.ui = 1 << TAG} },
 
+/*
+ * Xresources preferences to load at startup
+ */
+ResourcePref resources[] = {
+		{ "font",               STRING,  &font },
+		{ "dmenufont",          STRING,  &dmenufont },
+		{ "normbgcolor",        STRING,  &normbgcolor },
+		{ "normbordercolor",    STRING,  &normbordercolor },
+		{ "normfgcolor",        STRING,  &normfgcolor },
+		{ "selbgcolor",         STRING,  &selbgcolor },
+		{ "selbordercolor",     STRING,  &selbordercolor },
+		{ "selfgcolor",         STRING,  &selfgcolor },
+		{ "borderpx",          	INTEGER, &borderpx },
+		{ "snap",          		INTEGER, &snap },
+		{ "showbar",          	INTEGER, &showbar },
+		{ "topbar",          	INTEGER, &topbar },
+		{ "nmaster",          	INTEGER, &nmaster },
+		{ "resizehints",       	INTEGER, &resizehints },
+		{ "mfact",      	 	FLOAT,   &mfact },
+};
+
 /* helper for spawning shell commands in the pre dwm-5.0 fashion */
 #define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
 
 /* commands */
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
-static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_grey, "-nf", col_grey, "-sb", col_black, "-sf", col_black, NULL };
+static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", normbgcolor, "-nf", normfgcolor, "-sb", selbordercolor, "-sf", selfgcolor, NULL };
 static const char *termcmd[]  = { "st", NULL };
 static const char *browsercmd[] = {"qutebrowser", NULL};
 
@@ -70,6 +95,9 @@ static const char *mutevol[] = { "/home/aj/.local/bin/chvol.sh", "toggle",      
 
 static const char *brightnessup[]   = { "/home/aj/.local/bin/chbrightness.sh", "+10", NULL };
 static const char *brightnessdown[] = { "/home/aj/.local/bin/chbrightness.sh", "-10", NULL };
+
+static const char *xres_dark[]  = { "/home/aj/.local/bin/change_color.sh", "dark", NULL };
+static const char *xres_light[] = { "/home/aj/.local/bin/change_color.sh", "light", NULL };
 
 static Key keys[] = {
 	/* modifier                     key        function        argument */
@@ -97,9 +125,9 @@ static Key keys[] = {
 	{ MODKEY,                       XK_period, focusmon,       {.i = +1 } },
 	{ MODKEY|ShiftMask,             XK_comma,  tagmon,         {.i = -1 } },
 	{ MODKEY|ShiftMask,             XK_period, tagmon,         {.i = +1 } },
-	{ MODKEY,                       XK_minus,  setgaps,        {.i = -1 } },
-	{ MODKEY,                       XK_equal,  setgaps,        {.i = +1 } },
-	{ MODKEY|ShiftMask,             XK_equal,  setgaps,        {.i = 0  } },
+	//{ MODKEY,                       XK_minus,  setgaps,        {.i = -1 } },
+	//{ MODKEY,                       XK_equal,  setgaps,        {.i = +1 } },
+	//{ MODKEY|ShiftMask,             XK_equal,  setgaps,        {.i = 0  } },
 	TAGKEYS(                        XK_1,                      0)
 	TAGKEYS(                        XK_2,                      1)
 	TAGKEYS(                        XK_3,                      2)
@@ -116,6 +144,8 @@ static Key keys[] = {
 	{ 0, 							XF86XK_MonBrightnessUp,   spawn, { .v = brightnessup } },
 	{ 0, 							XF86XK_MonBrightnessDown, spawn, { .v = brightnessdown } },
 	{ 0, 							XK_F9, 	   togglebar, 		{0} },
+	{ 0, 							XK_F10,    spawn, 		{.v = xres_dark} },
+	{ 0, 							XK_F11,    spawn, 		{.v = xres_light} },
 };
 
 /* button definitions */
