@@ -4,13 +4,13 @@
 #include <X11/XF86keysym.h>
 
 /* appearance */
-static unsigned int borderpx  = 3;        /* border pixel of windows */
+static unsigned int borderpx  = 0;        /* border pixel of windows */
 static unsigned int gappx     = 20;        /* gaps between windows */
 static unsigned int snap      = 32;       /* snap pixel */
 static int showbar            = 1;        /* 0 means no bar */
 static int topbar             = 1;        /* 0 means bottom bar */
-static int vertpad            = 0;       /* vertical padding of bar */
-static int sidepad            = 0;       /* horizontal padding of bar */
+static int vertpad            = 20;       /* vertical padding of bar */
+static int sidepad            = 20;       /* horizontal padding of bar */
 static const double activeopacity   = 1.0f;     /* Window opacity when it's focused (0 <= opacity <= 1) */
 static const double inactiveopacity = 0.60f;   /* Window opacity when it's inactive (0 <= opacity <= 1) */
 static char font[]             = "mononoki Nerd Font:size=11";
@@ -70,11 +70,13 @@ ResourcePref resources[] = {
 		{ "font",               STRING,  &font },
 		{ "dmenufont",          STRING,  &dmenufont },
 		{ "normbgcolor",        STRING,  &normbgcolor },
-		{ "normbordercolor",    STRING,  &normbordercolor },
-		{ "normfgcolor",        STRING,  &normfgcolor },
-		{ "selbgcolor",         STRING,  &selbgcolor },
+		/* Colors */
+		{ "color0",    			STRING,  &normbordercolor },
+		{ "foreground",         STRING,  &normfgcolor },
+		{ "background",         STRING,  &selbgcolor },
 		{ "selbordercolor",     STRING,  &selbordercolor },
-		{ "selfgcolor",         STRING,  &selfgcolor },
+		{ "cursorColor",        STRING,  &selfgcolor },
+		/* ... */
 		{ "borderpx",          	INTEGER, &borderpx }, /* This doesnt work */
 		{ "snap",          		INTEGER, &snap },
 		{ "showbar",          	INTEGER, &showbar },
