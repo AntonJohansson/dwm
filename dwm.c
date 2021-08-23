@@ -456,7 +456,8 @@ buttonpress(XEvent *e)
 		focus(NULL);
 	}
 	if (ev->window == selmon->barwin) {
-		i = x = 0;
+		x = endpadw;
+		i = 0;
 		do
 			x += TEXTW(tags[i]);
 		while (ev->x >= x && ++i < LENGTH(tags));
@@ -724,14 +725,14 @@ drawbar(Monitor *m)
 {
 	int x, w, tw = 0;
 	int boxs = drw->fonts->h / 9;
-	int boxw = drw->fonts->h / 6 + 2;
+	int boxw = drw->fonts->h / 10 + 2;
 	unsigned int i, occ = 0, urg = 0;
 	Client *c;
 
 	/* draw status first so it can be overdrawn by tags later */
 	if (m == selmon) { /* status is only drawn on selected monitor */
 		drw_setscheme(drw, scheme[SchemeNorm]);
-		tw = TEXTW(stext) - lrpad + 2; /* 2px right padding */
+		tw = TEXTW(stext) - lrpad + endpadw; /* 2px right padding */
 		drw_text(drw, m->ww - tw - 2 * sp, 0, tw, bh, 0, stext, 0);
 	}
 
@@ -740,15 +741,18 @@ drawbar(Monitor *m)
 		if (c->isurgent)
 			urg |= c->tags;
 	}
-	x = 0;
+
+	drw_rect(drw, 0, 0, endpadw, bh, 1, 1);
+	x = endpadw;
 	for (i = 0; i < LENGTH(tags); i++) {
 		w = TEXTW(tags[i]);
 		drw_setscheme(drw, scheme[m->tagset[m->seltags] & 1 << i ? SchemeSel : SchemeNorm]);
 		drw_text(drw, x, 0, w, bh, lrpad / 2, tags[i], urg & 1 << i);
 		if (occ & 1 << i)
-			drw_rect(drw, x + boxs, boxs, boxw, boxw,
-				m == selmon && selmon->sel && selmon->sel->tags & 1 << i,
-				urg & 1 << i);
+			drw_rect(drw, x + 2*boxw, bh - (bh - drw->fonts->h)/4 - 2, w - ( 4 * boxw + 1), boxw,
+			    m == selmon && selmon->sel && selmon->sel->tags & 1 << i,
+			    urg & 1 << i);
+
 		x += w;
 	}
 	w = blw = TEXTW(m->ltsymbol);
